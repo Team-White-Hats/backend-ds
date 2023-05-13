@@ -1,0 +1,127 @@
+
+version: "3"
+services:
+  nosql-db:
+    image: mongo
+    ports:
+      - "27018:27017"
+    container_name: nosql-db
+    volumes:
+      - ./db/:/data/db
+  product-service:
+    build:
+      dockerfile: Dockerfile
+      context: "./product-service"
+    container_name: products
+    ports:
+      - "3002:3002"
+    restart: always
+    depends_on:
+      - "nosql-db"
+    volumes:
+      - .:/app
+      - /app/product-service/node_modules
+
+    env_file:
+      - "./product-service/.env"
+  user-service:
+    build:
+      dockerfile: Dockerfile
+      context: ./user-service
+    container_name: user-service
+    ports:
+      - "3001:3001"
+    restart: always
+    depends_on:
+      - "nosql-db"
+    volumes:
+      - .:/app
+      - /app/user-service/node_modules
+    env_file:
+      - ./user-service/.env
+  order-service:
+    build:
+      dockerfile: Dockerfile
+      context: ./order-service
+    container_name: order-service
+    ports:
+      - "3005:3005"
+    restart: always
+    depends_on:
+      - "nosql-db"
+
+    volumes:
+      - .:/app/
+      - /app/order-service/node_modules
+    env_file:
+      - ./order-service/.env
+  message-service: 
+     build:
+       dockerfile: Dockerfile
+       context: ./message-service
+     container_name: message-service
+     ports:
+      - "3004:3004"
+     restart: always
+     depends_on:
+      - "nosql-db"
+
+     volumes:
+      - .:/app/
+      - /app/message-service/node_modules
+     env_file:
+      - ./message-service/.env
+ 
+
+  payment-service:
+    build:
+      dockerfile: Dockerfile
+      context: ./payment-service
+    container_name: payment-service
+    ports:
+      - "3003:3003"
+    restart: always
+    depends_on:
+      - "nosql-db"
+
+    volumes:
+      - .:/app/
+      - /app/payment-service/node_modules
+    env_file:
+      - ./payment-service/.env
+
+  delivery-service:
+    build:
+      dockerfile: Dockerfile
+      context: ./delivery-service
+    container_name: delivery-service
+    ports:
+      - "3006:3006"
+    restart: always
+    depends_on:
+      - "nosql-db"
+
+    volumes:
+      - .:/app/
+      - /app/delivery-service/node_modules
+    env_file:
+      - "./api-gateway/.env"
+
+  api-gateway:
+    build:
+      dockerfile: Dockerfile
+      context: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "3000:3000"
+    restart: always
+    depends_on:
+      - "nosql-db"
+
+    volumes:
+      - .:/app/
+      - /app/api-gateway/node_modules
+    env_file:
+      - ./api-gateway/.env
+
+ 
